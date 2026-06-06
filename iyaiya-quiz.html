@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>イヤイヤ期 理解クイズ｜Hoi_craft_Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #FF6B6B;
+    --primary-light: #FF8E8E;
+    --secondary: #FFE66D;
+    --accent: #4ECDC4;
+    --dark: #2C3E50;
+    --dark-soft: #34495E;
+    --light: #F8F9FA;
+    --white: #FFFFFF;
+    --correct: #2ECC71;
+    --incorrect: #E74C3C;
+    --shadow: 0 8px 32px rgba(44,62,80,0.12);
+    --shadow-hover: 0 16px 48px rgba(44,62,80,0.18);
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: linear-gradient(135deg, #FFE8E8 0%, #FFF5E0 50%, #E8F8F7 100%);
+    min-height: 100vh;
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+
+  .bg-decoration {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.08;
+  }
+
+  .bg-circle:nth-child(1) {
+    width: 400px; height: 400px;
+    background: var(--primary);
+    top: -100px; right: -100px;
+    animation: float1 8s ease-in-out infinite;
+  }
+
+  .bg-circle:nth-child(2) {
+    width: 300px; height: 300px;
+    background: var(--accent);
+    bottom: 100px; left: -80px;
+    animation: float2 10s ease-in-out infinite;
+  }
+
+  .bg-circle:nth-child(3) {
+    width: 200px; height: 200px;
+    background: var(--secondary);
+    top: 40%; right: 10%;
+    animation: float1 12s ease-in-out infinite reverse;
+  }
+
+  @keyframes float1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-20px, 20px) scale(1.05); }
+  }
+
+  @keyframes float2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -20px) scale(1.05); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+    animation: slideDown 0.6s ease;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: clamp(24px, 6vw, 36px);
+    font-weight: 900;
+    line-height: 1.3;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .header h1 span {
+    color: var(--primary);
+  }
+
+  .header p {
+    font-size: 14px;
+    color: var(--dark-soft);
+    line-height: 1.7;
+  }
+
+  /* Progress */
+  .progress-wrap {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.5s ease;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .progress-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dark-soft);
+  }
+
+  .progress-score {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .progress-bar {
+    height: 8px;
+    background: #F0F0F0;
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    border-radius: 100px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Card */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    animation: cardIn 0.4s ease;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .question-num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--primary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .question-text {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 700;
+    line-height: 1.6;
+    color: var(--dark);
+    margin-bottom: 24px;
+  }
+
+  /* Buttons */
+  .btn-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 20px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+  }
+
+  .btn:hover::after { background: rgba(255,255,255,0.15); }
+
+  .btn:active { transform: scale(0.96); }
+
+  .btn-maru {
+    background: linear-gradient(135deg, #2ECC71, #27AE60);
+    color: white;
+    box-shadow: 0 4px 20px rgba(46,204,113,0.3);
+  }
+
+  .btn-batsu {
+    background: linear-gradient(135deg, #E74C3C, #C0392B);
+    color: white;
+    box-shadow: 0 4px 20px rgba(231,76,60,0.3);
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Answer feedback */
+  .feedback {
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    margin-top: 16px;
+    animation: feedbackIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes feedbackIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .feedback.correct {
+    background: linear-gradient(135deg, #D5F5E3, #A9DFBF);
+    border-left: 4px solid var(--correct);
+  }
+
+  .feedback.incorrect {
+    background: linear-gradient(135deg, #FADBD8, #F1948A);
+    border-left: 4px solid var(--incorrect);
+  }
+
+  .feedback-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .feedback-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .feedback-label {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  .feedback.correct .feedback-label { color: #1A8A4E; }
+  .feedback.incorrect .feedback-label { color: #922B21; }
+
+  .feedback-answer {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    opacity: 0.8;
+  }
+
+  .feedback.correct .feedback-answer { color: #1A8A4E; }
+  .feedback.incorrect .feedback-answer { color: #922B21; }
+
+  .feedback-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--dark);
+  }
+
+  /* Next button */
+  .btn-next {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px rgba(255,107,107,0.35);
+    animation: fadeIn 0.4s ease 0.3s both;
+  }
+
+  .btn-next:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255,107,107,0.4);
+  }
+
+  .btn-next:active { transform: scale(0.98); }
+
+  /* Start screen */
+  .start-screen {
+    text-align: center;
+    padding: 8px 0;
+    animation: fadeIn 0.6s ease;
+  }
+
+  .start-illust {
+    font-size: 80px;
+    margin-bottom: 16px;
+    display: block;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .start-title {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  .start-desc {
+    font-size: 14px;
+    color: var(--dark-soft);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .start-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+
+  .tag {
+    background: #F0F4FF;
+    color: var(--dark-soft);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 100px;
+  }
+
+  .btn-start {
+    display: inline-block;
+    padding: 20px 48px;
+    background: linear-gradient(135deg, var(--primary), #FF4757);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 28px rgba(255,107,107,0.4);
+    letter-spacing: 0.05em;
+  }
+
+  .btn-start:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(255,107,107,0.45);
+  }
+
+  /* Result screen */
+  .result-screen {
+    text-align: center;
+    animation: cardIn 0.5s ease;
+  }
+
+  .result-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #FF4757);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 36px rgba(255,107,107,0.4);
+    animation: scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes scaleIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .result-score {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+  }
+
+  .result-total {
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 700;
+  }
+
+  .result-title {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .result-message {
+    font-size: 14px;
+    color: var(--dark-soft);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .result-breakdown {
+    background: #F8F9FA;
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  .breakdown-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--dark-soft);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .breakdown-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #EEE;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .breakdown-item:last-child { border-bottom: none; }
+
+  .breakdown-mark {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .breakdown-q { color: var(--dark); }
+
+  .btn-retry {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--primary), #FF4757);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 28px rgba(255,107,107,0.35);
+    margin-bottom: 12px;
+  }
+
+  .btn-retry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(255,107,107,0.4);
+  }
+
+  /* Brand footer */
+  .brand-footer {
+    text-align: center;
+    padding: 16px 0 0;
+    font-size: 12px;
+    color: var(--dark-soft);
+    opacity: 0.6;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  /* Highlight buttons when answered */
+  .btn-maru.selected { ring: 3px solid white; transform: scale(0.96); }
+  .btn-batsu.selected { ring: 3px solid white; transform: scale(0.96); }
+  .btn-maru.dimmed, .btn-batsu.dimmed { opacity: 0.4; }
+</style>
+</head>
+<body>
+
+<div class="bg-decoration">
+  <div class="bg-circle"></div>
+  <div class="bg-circle"></div>
+  <div class="bg-circle"></div>
+</div>
+
+<div class="container">
+  <div class="header">
+    <div class="header-badge">Hoi_craft_Lab</div>
+    <h1>イヤイヤ期<span>理解</span>クイズ</h1>
+    <p>保育士監修・全15問<br>子どもの「イヤ！」の本質を学ぼう</p>
+  </div>
+
+  <div id="app"></div>
+
+  <div class="brand-footer">© Hoi_craft_Lab｜hoi_craft_lab238</div>
+</div>
+
+<script>
+const questions = [
+  {
+    category: "イヤイヤ期の本質・心理",
+    text: "イヤイヤ期は「反抗期」とも呼ばれ、子どもが大人に意図的に逆らおうとする時期である。",
+    answer: false,
+    explanation: "イヤイヤ期は大人への反抗ではなく「自分でやりたい・自分で決めたい」という自律性の芽生えです。大人に逆らっているのではなく、自分の意志を表現しています。"
+  },
+  {
+    category: "イヤイヤ期の本質・心理",
+    text: "イヤイヤ期は主に1歳後半〜3歳頃に見られる。",
+    answer: true,
+    explanation: "個人差はありますが、1歳後半から始まり2歳前後にピークを迎えることが多いです。3歳を過ぎると言葉で気持ちを伝える力が育ち、少しずつ落ち着いていきます。"
+  },
+  {
+    category: "イヤイヤ期の本質・心理",
+    text: "イヤイヤ期がない子どもは発達に問題がある可能性がある。",
+    answer: false,
+    explanation: "イヤイヤ期の強さや表れ方には個人差があります。激しく出ない子どももいますが、それだけで発達の問題とは言えません。"
+  },
+  {
+    category: "イヤイヤ期の本質・心理",
+    text: "イヤイヤ期の「イヤ」は、子どもが自分の感情をコントロールできないために起きる。",
+    answer: true,
+    explanation: "2歳頃の脳はまだ感情をコントロールする前頭前野が未発達です。感情が爆発してしまうのは意志の弱さではなく、脳の発達段階によるものです。"
+  },
+  {
+    category: "イヤイヤ期の本質・心理",
+    text: "イヤイヤ期は子どもの自己肯定感の土台を作る大切な時期である。",
+    answer: true,
+    explanation: "この時期に「自分の意志を持っていい」と感じられた経験が、自己肯定感の基盤になります。意志を尊重される経験の積み重ねが、自律性の育ちにつながります。"
+  },
+  {
+    category: "正しい関わり方・NG対応",
+    text: "子どもが「イヤ」と言ったとき、すぐに理由を聞き出すことが最善の対応である。",
+    answer: false,
+    explanation: "感情が爆発しているときに言葉で聞き出そうとしても、子どもは答えられません。まず「イヤだったんだね」と気持ちを受け止めてから、落ち着いた後に話を聞くのが効果的です。"
+  },
+  {
+    category: "正しい関わり方・NG対応",
+    text: "「どっちの靴から履く？」のように選択肢を与えることで、イヤイヤを和らげることがある。",
+    answer: true,
+    explanation: "「自分で決めた」という感覚を残してあげることで、子どもの「イヤ」が落ち着くことがあります。完全に自由にはできなくても、小さな選択権を渡すことが有効です。"
+  },
+  {
+    category: "正しい関わり方・NG対応",
+    text: "イヤイヤ期の子どもには、毅然とした態度で「ダメなものはダメ」と繰り返すことが最も効果的である。",
+    answer: false,
+    explanation: "感情が高ぶっているときに強い言葉で押さえつけると、子どもの感情はさらに激しくなりやすいです。まず気持ちを受け止めてから、落ち着いた声で伝える方が効果的です。"
+  },
+  {
+    category: "正しい関わり方・NG対応",
+    text: "時間に余裕があるときは、子どもが自分でやり遂げるまで待つことが大切である。",
+    answer: true,
+    explanation: "「自分でできた」という経験の積み重ねが、自律性と自己肯定感を育てます。時間があるときは先回りせず、見守る姿勢が子どもの成長につながります。"
+  },
+  {
+    category: "正しい関わり方・NG対応",
+    text: "イヤイヤ期の子どもに「なんでイヤなの？」と理由を聞くことは逆効果になることがある。",
+    answer: true,
+    explanation: "2歳頃の子どもはまだ自分の気持ちを言語化する力が十分ではありません。理由を聞かれても答えられず、さらに混乱することがあります。まず気持ちを受け止めることを優先してください。"
+  },
+  {
+    category: "発達との関係",
+    text: "イヤイヤ期は心理学者エリクソンの発達理論では「自律性 vs 恥・疑惑」の段階に当たる。",
+    answer: true,
+    explanation: "エリクソンはこの時期を自律性が育つ段階と定義しています。自分でやろうとする力を周囲に認められることで自律性が根付き、否定され続けると恥や疑惑の感覚が育ちやすくなります。"
+  },
+  {
+    category: "発達との関係",
+    text: "イヤイヤ期を過ぎると、子どもは感情のコントロールが完全にできるようになる。",
+    answer: false,
+    explanation: "感情のコントロールを司る前頭前野の発達は長く続きます。イヤイヤ期が落ち着いても、感情のコントロールが完成するわけではありません。小学校以降も発達は続きます。"
+  },
+  {
+    category: "発達との関係",
+    text: "イヤイヤ期に激しく自己主張する子どもほど、将来的に意志の強い子どもに育つ傾向がある。",
+    answer: false,
+    explanation: "イヤイヤ期の強さと将来の意志の強さに直接的な相関関係は確認されていません。イヤイヤ期の表れ方には個人差があり、激しさで将来を判断することはできません。"
+  },
+  {
+    category: "発達との関係",
+    text: "イヤイヤ期の関わり方は、子どもの愛着形成に影響する。",
+    answer: true,
+    explanation: "イヤイヤ期に気持ちを受け止めてもらえた経験は、養育者への安心感と信頼感を育てます。この愛着の安定が、子どもの社会性や自己肯定感の基盤になります。"
+  },
+  {
+    category: "発達との関係",
+    text: "イヤイヤ期は子どもだけでなく、親自身の対応力が試される成長の機会でもある。",
+    answer: true,
+    explanation: "イヤイヤ期は子どもの発達の節目であると同時に、親が子どもの気持ちに寄り添う力を育てる時期でもあります。完璧に対応できなくても、向き合い続けることが大切です。"
+  }
+];
+
+// Shuffle array
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let state = {
+  screen: 'start',
+  questions: [],
+  current: 0,
+  score: 0,
+  answered: false,
+  results: []
+};
+
+function getResultMessage(score, total) {
+  const pct = score / total;
+  if (pct === 1) return { emoji: '🏆', title: '満点！すごい！', msg: 'イヤイヤ期のことをよく理解されています。\nその知識を日々の関わりに活かしてみてください。' };
+  if (pct >= 0.8) return { emoji: '⭐', title: 'とても良い理解です！', msg: '子どもの気持ちへの理解が深いですね。\n間違えた問題の解説も読んでみてください。' };
+  if (pct >= 0.6) return { emoji: '👍', title: 'なかなかよくできました！', msg: 'イヤイヤ期の基本はおさえています。\n苦手な部分を確認してみましょう。' };
+  return { emoji: '📚', title: 'もう一度チャレンジ！', msg: 'イヤイヤ期は奥が深いです。\n解説を読んで再チャレンジしてみてください。' };
+}
+
+function render() {
+  const app = document.getElementById('app');
+
+  if (state.screen === 'start') {
+    app.innerHTML = `
+      <div class="card start-screen">
+        <span class="start-illust">😤</span>
+        <div class="start-title">イヤイヤ期の「イヤ！」<br>どこまで知ってる？</div>
+        <p class="start-desc">子どもの「イヤ！」には、ちゃんと理由があります。<br>全15問のクイズで、イヤイヤ期の本質を確認しましょう。</p>
+        <div class="start-tags">
+          <span class="tag">🧠 本質・心理 5問</span>
+          <span class="tag">💡 関わり方 5問</span>
+          <span class="tag">🌱 発達との関係 5問</span>
+        </div>
+        <button class="btn-start" onclick="startQuiz()">クイズをはじめる</button>
+      </div>
+    `;
+  } else if (state.screen === 'quiz') {
+    const q = state.questions[state.current];
+    const progress = ((state.current) / state.questions.length) * 100;
+
+    let feedbackHTML = '';
+    if (state.answered) {
+      const userAnswer = state.lastAnswer;
+      const correct = userAnswer === q.answer;
+      feedbackHTML = `
+        <div class="feedback ${correct ? 'correct' : 'incorrect'}">
+          <div class="feedback-header">
+            <span class="feedback-icon">${correct ? '⭕' : '❌'}</span>
+            <span class="feedback-label">${correct ? '正解！' : '不正解'}</span>
+          </div>
+          <div class="feedback-answer">答え：${q.answer ? '○（正しい）' : '×（誤り）'}</div>
+          <div class="feedback-text">${q.explanation}</div>
+        </div>
+        <button class="btn-next" onclick="nextQuestion()">
+          ${state.current + 1 < state.questions.length ? '次の問題へ →' : '結果を見る 🎉'}
+        </button>
+      `;
+    }
+
+    app.innerHTML = `
+      <div class="progress-wrap">
+        <div class="progress-info">
+          <span class="progress-text">${state.current + 1} / ${state.questions.length}問</span>
+          <span class="progress-score">✅ ${state.score}正解</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${progress}%"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="question-num">Q${state.current + 1}｜${q.category}</div>
+        <div class="question-text">${q.text}</div>
+        <div class="btn-group">
+          <button class="btn btn-maru ${state.answered && !q.answer ? 'dimmed' : ''} ${state.answered && q.answer ? 'selected' : ''}"
+            onclick="answer(true)" ${state.answered ? 'disabled' : ''}>○</button>
+          <button class="btn btn-batsu ${state.answered && q.answer ? 'dimmed' : ''} ${state.answered && !q.answer ? 'selected' : ''}"
+            onclick="answer(false)" ${state.answered ? 'disabled' : ''}>×</button>
+        </div>
+        ${feedbackHTML}
+      </div>
+    `;
+  } else if (state.screen === 'result') {
+    const { emoji, title, msg } = getResultMessage(state.score, state.questions.length);
+    const breakdownItems = state.results.map((r, i) => `
+      <div class="breakdown-item">
+        <span class="breakdown-mark">${r.correct ? '⭕' : '❌'}</span>
+        <span class="breakdown-q">Q${i+1}. ${state.questions[i].text.substring(0, 28)}${state.questions[i].text.length > 28 ? '…' : ''}</span>
+      </div>
+    `).join('');
+
+    app.innerHTML = `
+      <div class="card result-screen">
+        <div class="result-circle">
+          <div class="result-score">${state.score}</div>
+          <div class="result-total">/ ${state.questions.length}問正解</div>
+        </div>
+        <div class="result-title">${emoji} ${title}</div>
+        <p class="result-message">${msg.replace(/\n/g, '<br>')}</p>
+        <div class="result-breakdown">
+          <div class="breakdown-title">問題別結果</div>
+          ${breakdownItems}
+        </div>
+        <button class="btn-retry" onclick="startQuiz()">もう一度挑戦する 🔄</button>
+        <button class="btn-retry" style="background: linear-gradient(135deg, var(--accent), #45B7AA);" onclick="resetToStart()">トップに戻る 🏠</button>
+      </div>
+    `;
+  }
+}
+
+function startQuiz() {
+  state = {
+    screen: 'quiz',
+    questions: shuffle(questions),
+    current: 0,
+    score: 0,
+    answered: false,
+    lastAnswer: null,
+    results: []
+  };
+  render();
+}
+
+function answer(userAnswer) {
+  if (state.answered) return;
+  const q = state.questions[state.current];
+  const correct = userAnswer === q.answer;
+  state.answered = true;
+  state.lastAnswer = userAnswer;
+  if (correct) state.score++;
+  state.results.push({ correct });
+  render();
+}
+
+function nextQuestion() {
+  state.current++;
+  state.answered = false;
+  state.lastAnswer = null;
+  if (state.current >= state.questions.length) {
+    state.screen = 'result';
+  }
+  render();
+}
+
+function resetToStart() {
+  state.screen = 'start';
+  render();
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
